@@ -10,6 +10,8 @@ import mk.ukim.finki.emtlabs.repository.AuthorRepository;
 import mk.ukim.finki.emtlabs.repository.BookRepository;
 import mk.ukim.finki.emtlabs.repository.CountryRepository;
 import mk.ukim.finki.emtlabs.service.BookService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -93,5 +95,17 @@ public class BookServiceImpl implements BookService {
     @Override
     public void deleteById(Long id) {
         this.bookRepository.deleteById(id);
+    }
+
+    @Override
+    public Page<Book> findAllWithPagination(Pageable pageable) {
+        return this.bookRepository.findAll(pageable);
+    }
+
+    @Override
+    public Optional<Book> markAsTaken(Long id) {
+        Book book = this.bookRepository.findById(id).orElseThrow(() -> new BookNotFoundException(id));
+        book.setAvailableCopies(book.getAvailableCopies() - 1);
+        return Optional.of(this.bookRepository.save(book));
     }
 }

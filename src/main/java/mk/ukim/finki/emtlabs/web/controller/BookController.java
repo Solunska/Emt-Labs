@@ -85,11 +85,7 @@ public class BookController {
 
     @PostMapping("/mark-as-taken/{id}")
     public String markBookAsTaken(@PathVariable Long id) {
-        if (this.bookService.findById(id).isPresent()) {
-            Book book = this.bookService.findById(id).get();
-            book.setAvailableCopies(book.getAvailableCopies() - 1);
-            this.bookService.save(book.getName(), book.getCategory(), book.getAuthor().getId(), book.getAvailableCopies());
-        }
+        this.bookService.markAsTaken(id);
         return "redirect:/books";
     }
 }

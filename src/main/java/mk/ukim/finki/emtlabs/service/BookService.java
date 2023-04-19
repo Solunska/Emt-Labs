@@ -3,6 +3,8 @@ package mk.ukim.finki.emtlabs.service;
 import mk.ukim.finki.emtlabs.model.Book;
 import mk.ukim.finki.emtlabs.model.dto.BookDto;
 import mk.ukim.finki.emtlabs.model.enumerations.Category;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,4 +27,7 @@ public interface BookService {
 
     void deleteById(Long id);
 
+    Page<Book> findAllWithPagination(Pageable pageable);
+
+    Optional<Book> markAsTaken(Long id);
 }

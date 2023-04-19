@@ -2,12 +2,14 @@ package mk.ukim.finki.emtlabs.service.impl;
 
 import mk.ukim.finki.emtlabs.model.Author;
 import mk.ukim.finki.emtlabs.model.Country;
+import mk.ukim.finki.emtlabs.model.dto.AuthorDto;
 import mk.ukim.finki.emtlabs.model.exceptions.AuthorNotFoundException;
 import mk.ukim.finki.emtlabs.model.exceptions.CountryNotFoundException;
 import mk.ukim.finki.emtlabs.repository.AuthorRepository;
 import mk.ukim.finki.emtlabs.repository.CountryRepository;
 import mk.ukim.finki.emtlabs.service.AuthorService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +36,7 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
+    @Transactional
     public Optional<Author> save(String name, String surname, Long countryId) {
         Country country = countryRepository.findById(countryId)
                 .orElseThrow(() -> new CountryNotFoundException(countryId));
@@ -41,6 +44,15 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
+    public Optional<Author> save(AuthorDto authorDto) {
+        Country country = this.countryRepository.findById(authorDto.getCountry())
+                .orElseThrow(() -> new CountryNotFoundException(authorDto.getCountry()));
+        return Optional.of(this.authorRepository.save(new Author(authorDto.getName(), authorDto.getSurname(), country)));
+    }
+
+
+    @Override
+    @Transactional
     public Optional<Author> edit(Long id, String name, String surname, Long countryId) {
         Author author = this.authorRepository.findById(id).orElseThrow(() -> new AuthorNotFoundException(id));
         Country country = this.countryRepository.findById(countryId).orElseThrow(() -> new CountryNotFoundException(countryId));
@@ -48,7 +60,20 @@ public class AuthorServiceImpl implements AuthorService {
         author.setName(name);
         author.setSurname(surname);
         author.setCountry(country);
-        
+
+        return Optional.of(this.authorRepository.save(author));
+    }
+
+    @Override
+    public Optional<Author> edit(Long id, AuthorDto authorDto) {
+        Author author = this.authorRepository.findById(id).orElseThrow(() -> new AuthorNotFoundException(id));
+        Country country = this.countryRepository.findById(authorDto.getCountry())
+                .orElseThrow(() -> new CountryNotFoundException(authorDto.getCountry()));
+
+        author.setName(authorDto.getName());
+        author.setSurname(authorDto.getSurname());
+        author.setCountry(country);
+
         return Optional.of(this.authorRepository.save(author));
     }
 
@@ -56,4 +81,5 @@ public class AuthorServiceImpl implements AuthorService {
     public void deleteById(Long id) {
         this.authorRepository.deleteById(id);
     }
+
 }
